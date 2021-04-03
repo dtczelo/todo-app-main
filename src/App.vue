@@ -42,7 +42,10 @@
           </draggable>
         </div>
         <div class="todo-list__bottom">
-          <p>{{ items.length }} items left</p>
+          <p>
+            {{ items.filter((item) => item.isChecked === false).length }} items
+            left
+          </p>
           <Navigation v-if="!mobile" @sort-todo="sortTodo"></Navigation>
           <a class="todo-list__bottom__button" @click.prevent="deleteCompleted">
             Clear Completed
@@ -51,13 +54,22 @@
       </section>
 
       <Navigation v-if="mobile" @sort-todo="sortTodo"></Navigation>
+      <footer v-if="items.length > 0" class="footer">
+        <p>Drag and drop to reorder list</p>
+      </footer>
     </main>
-    <footer class="attribution">
-      Challenge by
-      <a href="https://www.frontendmentor.io?ref=challenge" target="_blank"
-        >Frontend Mentor</a
-      >. Coded by <a href="#">Zelô</a>.
-    </footer>
+    <div
+      :class="{ signatureActive: isSignatureActive }"
+      class="signature"
+      @click.prevent="toggleSignature"
+    >
+      <p class="signature__attribution">
+        Challenge by
+        <a href="https://www.frontendmentor.io?ref=challenge" target="_blank"
+          >Frontend Mentor</a
+        >. Coded by <a href="https://github.com/dtczelo">Zelô</a>.
+      </p>
+    </div>
   </div>
 </template>
 
@@ -82,6 +94,7 @@ export default {
       items: [],
       oldIndex: "",
       newIndex: "",
+      isSignatureActive: false,
     };
   },
   computed: {
@@ -155,13 +168,40 @@ export default {
     sortTodo(payload) {
       this.items = payload.newSort;
     },
+    toggleSignature() {
+      this.isSignatureActive = !this.isSignatureActive;
+    },
   },
   created() {
     window.addEventListener("resize", this.isMobileScreen);
   },
   beforeMount() {
     if (localStorage.getItem("localItems") === null)
-      localStorage.setItem("localItems", "[]");
+      localStorage.setItem(
+        "localItems",
+        JSON.stringify([
+          {
+            id: "c2e83e6b-13ba-4db0-9103-de3d93100f1a",
+            message: "Keep training",
+            isChecked: false,
+          },
+          {
+            id: "da360cd0-6387-4d9b-b8a6-5c58fc264f4a",
+            message: "Compliment yourself each day",
+            isChecked: false,
+          },
+          {
+            id: "4f662989-928e-4dac-8d9e-256e0cb6ba93",
+            message: "Meditate 1 hour",
+            isChecked: false,
+          },
+          {
+            id: "7c05c4bf-84ee-428c-980b-8697db3dd7d6",
+            message: "Complete Todo App on Frontend Mentor",
+            isChecked: true,
+          },
+        ])
+      );
     this.items = JSON.parse(localStorage.getItem("localItems"));
   },
 };
@@ -249,10 +289,10 @@ a:hover.active {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  min-height: 8vh;
+  min-height: 10vh;
   color: #fff;
   &__title {
-    font-size: clamp(1.5rem, -0.875rem + 9.375vw, 2.5rem);
+    font-size: clamp(1.5rem, -0.875rem + 9.375vw, 2.3rem);
     letter-spacing: 1rem;
     text-transform: uppercase;
   }
@@ -318,6 +358,15 @@ a:hover.active {
   cursor: pointer;
 }
 
+.footer {
+  height: 20vh;
+  display: grid;
+  place-items: center;
+  & p {
+    color: var(--text-darker);
+  }
+}
+
 // Drag & drop animation
 .flip-list-move {
   transition: transform 0.5s;
@@ -327,11 +376,62 @@ a:hover.active {
   border-left: 6px solid #ac6af0;
 }
 
-.d-none {
-  display: none;
+.signature {
+  position: fixed;
+  bottom: 5%;
+  right: 5%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #1f0902;
+  color: #f25a29;
+  font-weight: 700;
+  border-radius: 50%;
+  text-align: center;
+  box-shadow: 0 2px 20px -8px #1f0902a8;
+  opacity: 0.7;
+  transition: background-color 0.4s ease, opacity 0.2s ease,
+    box-shadow 0.4s ease, height 0.4s ease, border-radius 0.4s ease,
+    width 0.4s ease;
+  cursor: pointer;
+  &:hover {
+    box-shadow: 0 10px 40px -8px #1f0902a6;
+    opacity: 1;
+  }
+  &::before {
+    content: "Z";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    font-size: 1rem;
+    transform: translate(-50%, -50%);
+    opacity: 1;
+    transition: opacity 0.5s ease-in;
+  }
+  &__attribution {
+    line-height: 1.5;
+    color: #1f0902;
+    text-decoration: none;
+    transform: scale(0);
+    opacity: 0;
+    transition: all 0.5s ease;
+  }
 }
 
-.attribution {
-  display: none;
+.signatureActive {
+  width: 240px;
+  height: 70px;
+  border-radius: 0;
+  opacity: 1;
+  background-color: #f25a29;
+  & .signature__attribution {
+    transform: scale(1);
+    opacity: 1;
+  }
+  &.signature::before {
+    opacity: 0;
+  }
 }
 </style>
