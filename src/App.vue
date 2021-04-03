@@ -233,6 +233,8 @@ html {
   --text-darker: hsl(236, 9%, 61%);
   --line: hsl(236, 33%, 92%);
   --check-box: hsl(233, 11%, 84%);
+  --signature-bg: #1f0902;
+  --signature-text: #f25a29;
 }
 
 #app[data-theme="dark"] {
@@ -245,6 +247,8 @@ html {
   --text-darker: hsl(234, 11%, 52%);
   --line: hsl(233, 14%, 35%);
   --check-box: hsl(237, 14%, 26%);
+  --signature-bg: #f25a29;
+  --signature-text: #1f0902;
 }
 
 #app {
@@ -385,8 +389,8 @@ a:hover.active {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #1f0902;
-  color: #f25a29;
+  background-color: var(--signature-bg);
+  color: var(--signature-text);
   font-weight: 700;
   border-radius: 50%;
   text-align: center;
