@@ -10,7 +10,11 @@
     />
     <div class="cross-container">
       <div class="icon-cross" @click.prevent="newTodo = ''">
-        <img v-if="newTodo" src="../assets/images/icon-cross.svg" alt="" />
+        <img
+          v-if="newTodo"
+          src="../assets/images/icon-cross.svg"
+          alt="Cross icon"
+        />
       </div>
     </div>
   </form>
@@ -45,6 +49,7 @@ export default {
     flex: 1;
     border: none;
     outline: none;
+    color: var(--text);
     background: transparent;
     padding: 1rem 0;
     &::placeholder {

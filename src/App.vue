@@ -5,15 +5,19 @@
         media="(min-width: 570px)"
         srcset="./assets/images/bg-desktop-light.jpg"
       />
-      <img src="./assets/images/bg-mobile-light.jpg" />
+      <img
+        src="./assets/images/bg-mobile-light.jpg"
+        alt="Mountains with purple to blue gradient"
+      />
     </picture>
 
     <main class="main-wrapper">
       <header class="header">
         <h1 class="header__title">todo</h1>
         <button class="header__button" @click.prevent="darkModeSwitch">
-          <img v-if="!darkMode" src=./assets/images/icon-moon.svg alt="" /> <img
-          v-else src=./assets/images/icon-sun.svg alt="" />
+          <img v-if="!darkMode" src=./assets/images/icon-moon.svg alt="Moon
+          icon" /> <img v-else src=./assets/images/icon-sun.svg alt="Sun icon"
+          />
         </button>
       </header>
 
@@ -182,12 +186,13 @@ html {
 #app[data-theme="light"] {
   // Light Theme
   --primary: hsl(220, 98%, 61%);
-  --el-background: #fff;
   --background: hsl(0, 0%, 98%);
-  --cheox: hsl(236, 33%, 92%);
-  --Light-Grayish-Blue: hsl(233, 11%, 84%);
-  --text-darker: hsl(236, 9%, 61%);
+  --el-background: #fff;
+  --text: hsl(235, 24%, 19%);
   --hover: hsl(235, 19%, 35%);
+  --text-darker: hsl(236, 9%, 61%);
+  --line: hsl(236, 33%, 92%);
+  --check-box: hsl(233, 11%, 84%);
 }
 
 #app[data-theme="dark"] {
@@ -196,9 +201,9 @@ html {
   --background: hsl(235, 21%, 11%);
   --el-background: hsl(235, 24%, 19%);
   --text: hsl(234, 39%, 85%);
-  --cheox: hsl(236, 33%, 92%);
+  --hover: hsl(236, 33%, 92%);
   --text-darker: hsl(234, 11%, 52%);
-  --hover: hsl(233, 14%, 35%);
+  --line: hsl(233, 14%, 35%);
   --check-box: hsl(237, 14%, 26%);
 }
 
@@ -266,7 +271,7 @@ a:hover.active {
     background-color: var(--el-background);
     padding: 0.5rem 0;
     min-height: 60px;
-    border-bottom: 2px solid var(--background);
+    border-bottom: 2px solid var(--line);
     cursor: move;
   }
   &__bottom {
