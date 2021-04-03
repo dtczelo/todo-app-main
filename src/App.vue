@@ -1,28 +1,332 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div id="app" :data-theme="darkLightMode">
+    <picture class="bg-img-container">
+      <source
+        media="(min-width: 570px)"
+        srcset="./assets/images/bg-desktop-light.jpg"
+      />
+      <img src="./assets/images/bg-mobile-light.jpg" />
+    </picture>
+
+    <main class="main-wrapper">
+      <header class="header">
+        <h1 class="header__title">todo</h1>
+        <button class="header__button" @click.prevent="darkModeSwitch">
+          <img v-if="!darkMode" src=./assets/images/icon-moon.svg alt="" /> <img
+          v-else src=./assets/images/icon-sun.svg alt="" />
+        </button>
+      </header>
+
+      <Form @add-todo="addTodo"></Form>
+
+      <section v-if="items.length > 0" class="todo-list">
+        <div class="todo-list__container">
+          <draggable v-model="items" ghost-class="ghost" @end="onEnd">
+            <transition-group name="flip-list">
+              <Todo
+                class="todo-list__item"
+                v-for="item in items"
+                :key="item.id"
+                :id="item.id"
+                :message="item.message"
+                :isChecked="item.isChecked"
+                @delete-todo="deleteTodo"
+                @check-todo="checkTodo"
+              >
+              </Todo>
+            </transition-group>
+          </draggable>
+        </div>
+        <div class="todo-list__bottom">
+          <p>{{ items.length }} items left</p>
+          <Navigation v-if="!mobile" @sort-todo="sortTodo"></Navigation>
+          <a class="todo-list__bottom__button" @click.prevent="deleteCompleted">
+            Clear Completed
+          </a>
+        </div>
+      </section>
+
+      <Navigation v-if="mobile" @sort-todo="sortTodo"></Navigation>
+    </main>
+    <footer class="attribution">
+      Challenge by
+      <a href="https://www.frontendmentor.io?ref=challenge" target="_blank"
+        >Frontend Mentor</a
+      >. Coded by <a href="#">Zelô</a>.
+    </footer>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+// Persistent drag and drop
+
+import Todo from "./components/Todo";
+import Form from "./components/Form";
+import Navigation from "./components/Navigation";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    HelloWorld
-  }
-}
+    Todo,
+    Form,
+    Navigation,
+  },
+  data() {
+    return {
+      mobile: false,
+      darkMode: false,
+      items: [],
+      oldIndex: "",
+      newIndex: "",
+    };
+  },
+  computed: {
+    darkLightMode: function () {
+      return this.darkMode === false ? "light" : "dark";
+    },
+  },
+  methods: {
+    isMobileScreen(e) {
+      let m = e.target.innerWidth < 768 ? true : false;
+      this.mobile = m;
+    },
+    darkModeSwitch() {
+      this.darkMode = !this.darkMode;
+    },
+    uniqueId() {
+      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+        /[xy]/g,
+        function (c) {
+          var r = (Math.random() * 16) | 0,
+            v = c == "x" ? r : (r & 0x3) | 0x8;
+          return v.toString(16);
+        }
+      );
+    },
+    onEnd(e) {
+      this.oldIndex = e.oldIndex;
+      this.newIndex = e.newIndex;
+    },
+    addTodo(newTodo) {
+      if (newTodo) {
+        if (localStorage.getItem("localItems") === null)
+          localStorage.setItem("localItems", "[]");
+        let newArray = JSON.parse(localStorage.getItem("localItems"));
+        newArray.push({
+          id: this.uniqueId(),
+          message: newTodo,
+          isChecked: false,
+        });
+        localStorage.removeItem("localItems");
+        localStorage.setItem("localItems", JSON.stringify(newArray));
+        this.items = newArray;
+      }
+    },
+    checkTodo(payload) {
+      let newArray = this.items;
+      newArray.map((item) => {
+        if (item.id == payload.id) item.isChecked = !item.isChecked;
+      });
+      localStorage.removeItem("localItems");
+      localStorage.setItem("localItems", JSON.stringify(newArray));
+      this.items = newArray;
+    },
+    deleteTodo(payload) {
+      let newArray = this.items.filter((item) => item.id !== payload.id);
+      localStorage.removeItem("localItems");
+      localStorage.setItem("localItems", JSON.stringify(newArray));
+      this.items = newArray;
+    },
+    deleteCompleted() {
+      let isSomeItemChecked = this.items.find(
+        (item) => item.isChecked === true
+      );
+      if (isSomeItemChecked) {
+        let newArray = this.items.filter((item) => item.isChecked === false);
+        localStorage.removeItem("localItems");
+        localStorage.setItem("localItems", JSON.stringify(newArray));
+        this.items = newArray;
+      }
+    },
+    sortTodo(payload) {
+      this.items = payload.newSort;
+    },
+  },
+  created() {
+    window.addEventListener("resize", this.isMobileScreen);
+  },
+  beforeMount() {
+    if (localStorage.getItem("localItems") === null)
+      localStorage.setItem("localItems", "[]");
+    this.items = JSON.parse(localStorage.getItem("localItems"));
+  },
+};
 </script>
 
 <style lang="scss">
+// :root {
+//   color-scheme: light dark;
+// }
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 18px;
+}
+
+#app[data-theme="light"] {
+  // Light Theme
+  --primary: hsl(220, 98%, 61%);
+  --el-background: #fff;
+  --background: hsl(0, 0%, 98%);
+  --cheox: hsl(236, 33%, 92%);
+  --Light-Grayish-Blue: hsl(233, 11%, 84%);
+  --text-darker: hsl(236, 9%, 61%);
+  --hover: hsl(235, 19%, 35%);
+}
+
+#app[data-theme="dark"] {
+  // Dark Theme
+  --primary: hsl(220, 98%, 61%);
+  --background: hsl(235, 21%, 11%);
+  --el-background: hsl(235, 24%, 19%);
+  --text: hsl(234, 39%, 85%);
+  --cheox: hsl(236, 33%, 92%);
+  --text-darker: hsl(234, 11%, 52%);
+  --hover: hsl(233, 14%, 35%);
+  --check-box: hsl(237, 14%, 26%);
+}
+
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  color: var(--text);
+  background-color: var(--background);
+}
+
+a:hover {
+  color: var(--hover);
+}
+
+.active,
+a:hover.active {
+  color: var(--primary);
+}
+
+.bg-img-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  & img {
+    width: 100%;
+    object-fit: cover;
+  }
+}
+
+.main-wrapper {
+  position: relative;
+  width: min(90%, 550px);
+  margin: 0 auto;
+  padding: 2rem 0;
+  z-index: 1;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 8vh;
+  color: #fff;
+  &__title {
+    font-size: clamp(1.5rem, -0.875rem + 9.375vw, 2.5rem);
+    letter-spacing: 1rem;
+    text-transform: uppercase;
+  }
+  &__button {
+    outline: none;
+    border: none;
+    background: transparent;
+  }
+}
+
+.todo-list {
+  box-shadow: 0px 20px 40px 0px hsla(235, 19%, 35%, 0.157);
+  border-radius: 5px;
+  overflow: hidden;
+  &__item {
+    background-color: var(--el-background);
+    padding: 0.5rem 0;
+    min-height: 60px;
+    border-bottom: 2px solid var(--background);
+    cursor: move;
+  }
+  &__bottom {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 1rem;
+    color: var(--text-darker);
+    background-color: var(--el-background);
+    & > * {
+      font-size: 0.8rem;
+    }
+    &__button {
+      cursor: pointer;
+      &:hover {
+        color: var(--hover);
+      }
+    }
+  }
+}
+
+.check-container {
+  width: 1.2rem;
+  height: 1.2rem;
+  margin: 0 1rem;
+  border-radius: 50%;
+  border: 1px solid var(--check-box);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.icon-check {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(150deg, hsl(192, 100%, 67%), hsl(280, 87%, 65%));
+}
+
+.cross-container {
+  width: 1.2rem;
+  height: 1.2rem;
+  margin: 0 1rem;
+  cursor: pointer;
+}
+
+// Drag & drop animation
+.flip-list-move {
+  transition: transform 0.5s;
+}
+
+.ghost {
+  border-left: 6px solid #ac6af0;
+}
+
+.d-none {
+  display: none;
+}
+
+.attribution {
+  display: none;
 }
 </style>
